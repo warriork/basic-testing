@@ -1,5 +1,6 @@
-// Uncomment the code below and write your tests
-// import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
+import { doStuffByInterval, doStuffByTimeout, readFileAsynchronously } from '.';
+
+import path from 'path';
 
 describe('doStuffByTimeout', () => {
   beforeAll(() => {
@@ -11,11 +12,21 @@ describe('doStuffByTimeout', () => {
   });
 
   test('should set timeout with provided callback and timeout', () => {
-    // Write your test here
+    const callback = jest.fn();
+    const spyOnTimeout = jest.spyOn(global, 'setTimeout');
+    doStuffByTimeout(callback, 1000);
+    expect(spyOnTimeout).toHaveBeenCalledWith(callback, 1000);
   });
 
   test('should call callback only after timeout', () => {
-    // Write your test here
+    const callback = jest.fn();
+    doStuffByTimeout(callback, 2000);
+
+    jest.advanceTimersByTime(1999);
+    expect(callback).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1);
+    expect(callback).toHaveBeenCalled();
   });
 });
 
@@ -29,17 +40,30 @@ describe('doStuffByInterval', () => {
   });
 
   test('should set interval with provided callback and timeout', () => {
-    // Write your test here
+    const callback = jest.fn();
+    const spyOnInterval = jest.spyOn(global, 'setInterval');
+    doStuffByInterval(callback, 1000);
+    expect(spyOnInterval).toHaveBeenCalledWith(callback, 1000);
   });
 
   test('should call callback multiple times after multiple intervals', () => {
-    // Write your test here
+    const callback = jest.fn();
+    doStuffByInterval(callback, 1000);
+
+    jest.advanceTimersByTime(3000);
+    expect(callback).toHaveBeenCalledTimes(3);
   });
 });
 
 describe('readFileAsynchronously', () => {
   test('should call join with pathToFile', async () => {
-    // Write your test here
+    jest.mock('path', () => ({
+      join: jest.fn(),
+    }));
+    const pathSpy = jest.spyOn(path, 'join');
+    const pathToFile = './index.js';
+    await readFileAsynchronously(pathToFile);
+    expect(pathSpy).toHaveBeenCalledWith(expect.any(String), pathToFile);
   });
 
   test('should return null if file does not exist', async () => {
